@@ -1,3 +1,18 @@
+This repository is only for correcting some errors to use it in Mangocord, the most powerful fork of Waterfall.
+
+
+https://github.com/LuciaNishimiya/MangoCord
+
+
+
+
+
+
+
+
+
+
+
 Waterfall
 =========
 
