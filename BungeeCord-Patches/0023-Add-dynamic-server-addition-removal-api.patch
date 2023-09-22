@@ -1,4 +1,4 @@
-From 7b19b18ac258549d811ee62556273443af4f91e5 Mon Sep 17 00:00:00 2001
+From 5db60dbe715d4f186caee02e5cbbba4df5b23d90 Mon Sep 17 00:00:00 2001
 From: Troy Frew <fuzzy_bot@arenaga.me>
 Date: Wed, 29 Jun 2016 04:29:25 +0200
 Subject: [PATCH] Add dynamic server addition/removal api.
@@ -311,5 +311,5 @@ index ecd3b619..7094fe0b 100644
 +    // Waterfall end
  }
 -- 
-2.40.1.windows.1
+2.42.0
 

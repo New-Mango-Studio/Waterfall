@@ -1,71 +1,28 @@
-From 1a52982fef14b2372aa9e0bc1e3a0bd02e0d63e2 Mon Sep 17 00:00:00 2001
+From 42716f7bfd1552c1a7207293614d27d8105833d1 Mon Sep 17 00:00:00 2001
 From: Aaron Hill <aa1ronham@gmail.com>
 Date: Thu, 15 Sep 2016 22:38:37 +0200
 Subject: [PATCH] Fix potion race condition on Forge 1.8.9
 
 
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/AbstractPacketHandler.java b/protocol/src/main/java/net/md_5/bungee/protocol/AbstractPacketHandler.java
-index 88865b85..0c334afc 100644
+index 0f8f5885..b3c8c6e2 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/AbstractPacketHandler.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/AbstractPacketHandler.java
-@@ -10,6 +10,8 @@ import net.md_5.bungee.protocol.packet.ClientStatus;
- import net.md_5.bungee.protocol.packet.Commands;
- import net.md_5.bungee.protocol.packet.EncryptionRequest;
- import net.md_5.bungee.protocol.packet.EncryptionResponse;
-+import net.md_5.bungee.protocol.packet.EntityEffect; // Waterfall
-+import net.md_5.bungee.protocol.packet.EntityRemoveEffect; // Waterfall
- import net.md_5.bungee.protocol.packet.EntityStatus;
- import net.md_5.bungee.protocol.packet.GameState;
- import net.md_5.bungee.protocol.packet.Handshake;
-@@ -223,4 +225,14 @@ public abstract class AbstractPacketHandler
-     public void handle(ServerData serverData) throws Exception
+@@ -238,4 +238,14 @@ public abstract class AbstractPacketHandler
+     public void handle(FinishConfiguration finishConfiguration) throws Exception
      {
      }
 +
 +    // Waterfall start
-+    public void handle(EntityEffect entityEffect) throws Exception
++    public void handle(net.md_5.bungee.protocol.packet.EntityEffect entityEffect) throws Exception
 +    {
 +    }
 +
-+    public void handle(EntityRemoveEffect removeEffect) throws Exception
++    public void handle(net.md_5.bungee.protocol.packet.EntityRemoveEffect removeEffect) throws Exception
 +    {
 +    }
 +    // Waterfall end
  }
-diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java b/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java
-index dabfa4db..7e0c4f7a 100644
---- a/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java
-+++ b/protocol/src/main/java/net/md_5/bungee/protocol/Protocol.java
-@@ -20,6 +20,8 @@ import net.md_5.bungee.protocol.packet.EncryptionRequest;
- import net.md_5.bungee.protocol.packet.EncryptionResponse;
- import net.md_5.bungee.protocol.packet.EntityStatus;
- import net.md_5.bungee.protocol.packet.GameState;
-+import net.md_5.bungee.protocol.packet.EntityEffect;
-+import net.md_5.bungee.protocol.packet.EntityRemoveEffect;
- import net.md_5.bungee.protocol.packet.Handshake;
- import net.md_5.bungee.protocol.packet.KeepAlive;
- import net.md_5.bungee.protocol.packet.Kick;
-@@ -140,6 +142,20 @@ public enum Protocol
-                     map( ProtocolConstants.MINECRAFT_1_19, 0x0A ),
-                     map( ProtocolConstants.MINECRAFT_1_19_4, 0xB )
-             );
-+            // Waterfall start
-+            TO_CLIENT.registerPacket(
-+                    EntityEffect.class,
-+                    EntityEffect::new,
-+                    map(ProtocolConstants.MINECRAFT_1_8, 0x1D),
-+                    map(ProtocolConstants.MINECRAFT_1_9, -1)
-+            );
-+            TO_CLIENT.registerPacket(
-+                    EntityRemoveEffect.class,
-+                    EntityRemoveEffect::new,
-+                    map(ProtocolConstants.MINECRAFT_1_8, 0x1E),
-+                    map(ProtocolConstants.MINECRAFT_1_9, -1)
-+            );
-+            // Waterfall end
-             TO_CLIENT.registerPacket(
-                     PlayerListItem.class, // PlayerInfo
-                     PlayerListItem::new,
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/packet/EntityEffect.java b/protocol/src/main/java/net/md_5/bungee/protocol/packet/EntityEffect.java
 new file mode 100644
 index 00000000..d11a9ea9
@@ -160,7 +117,7 @@ index 00000000..7ed2dc3a
 +    }
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/UserConnection.java b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
-index 32d222f7..e0a9d338 100644
+index 87eb9199..a129dc42 100644
 --- a/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 +++ b/proxy/src/main/java/net/md_5/bungee/UserConnection.java
 @@ -1,7 +1,9 @@
@@ -181,29 +138,20 @@ index 32d222f7..e0a9d338 100644
 +    @Getter
 +    private final Multimap<Integer, Integer> potions = HashMultimap.create();
 +    // Waterfall end
-     /*========================================================================*/
      @Getter
-     private String displayName;
+     @Setter
+     private String lastCommandTabbed;
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index fd100f15..faf5b97a 100644
+index 30fbb0b1..c412bbab 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-@@ -52,6 +52,8 @@ import net.md_5.bungee.protocol.PacketWrapper;
- import net.md_5.bungee.protocol.ProtocolConstants;
- import net.md_5.bungee.protocol.packet.BossBar;
- import net.md_5.bungee.protocol.packet.Commands;
-+import net.md_5.bungee.protocol.packet.EntityEffect;
-+import net.md_5.bungee.protocol.packet.EntityRemoveEffect;
- import net.md_5.bungee.protocol.packet.KeepAlive;
- import net.md_5.bungee.protocol.packet.Kick;
- import net.md_5.bungee.protocol.packet.PlayerListItem;
-@@ -714,6 +716,32 @@ public class DownstreamBridge extends PacketHandler
+@@ -737,6 +737,32 @@ public class DownstreamBridge extends PacketHandler
          }
      }
  
 +    // Waterfall start
 +    @Override
-+    public void handle(EntityEffect entityEffect) throws Exception
++    public void handle(net.md_5.bungee.protocol.packet.EntityEffect entityEffect) throws Exception
 +    {
 +        // Don't send any potions when switching between servers (which involves a handshake), which can trigger a race
 +        // condition on the client.
@@ -214,7 +162,7 @@ index fd100f15..faf5b97a 100644
 +    }
 +
 +    @Override
-+    public void handle(EntityRemoveEffect removeEffect) throws Exception
++    public void handle(net.md_5.bungee.protocol.packet.EntityRemoveEffect removeEffect) throws Exception
 +    {
 +        con.getPotions().remove(rewriteEntityId(removeEffect.getEntityId()), removeEffect.getEffectId());
 +    }
@@ -268,5 +216,5 @@ index d15044f4..bea2bbff 100644
       * Sends the server mod list to the client, or stores it for sending later.
       *
 -- 
-2.40.1.windows.1
+2.42.0
 

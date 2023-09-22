@@ -1,4 +1,4 @@
-From e403185445c2ad2dd100e119b7ddb9a43ff81b8e Mon Sep 17 00:00:00 2001
+From ee8508af13a1c8addcd54fb2fddb5e366541b252 Mon Sep 17 00:00:00 2001
 From: Minecrell <minecrell@minecrell.net>
 Date: Fri, 22 Sep 2017 13:07:31 +0200
 Subject: [PATCH] Handle plugin prefixes using Log4J
@@ -45,5 +45,5 @@ index cfd039cd..8e49e002 100644
                  <TimeBasedTriggeringPolicy />
                  <OnStartupTriggeringPolicy />
 -- 
-2.40.1.windows.1
+2.42.0
 

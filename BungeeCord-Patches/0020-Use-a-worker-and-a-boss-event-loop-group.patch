@@ -1,4 +1,4 @@
-From 08edeb3dbe51a304fcbcd2d0c326ee5fbdb97e1c Mon Sep 17 00:00:00 2001
+From 1e597d86bd5b0bb1fbd197fdc904097e6e96012f Mon Sep 17 00:00:00 2001
 From: kamcio96 <k.nadworski@icloud.com>
 Date: Mon, 14 Mar 2016 16:07:20 -0700
 Subject: [PATCH] Use a worker and a boss event loop group.
@@ -83,5 +83,5 @@ index 671cf96f..377df7ec 100644
                  .option( ChannelOption.CONNECT_TIMEOUT_MILLIS, BungeeCord.getInstance().getConfig().getRemotePingTimeout() )
                  .remoteAddress( socketAddress )
 -- 
-2.40.1.windows.1
+2.42.0
 

@@ -1,4 +1,4 @@
-From aafec0af8ddecaf34c20c63e36b74ea7e1eb9178 Mon Sep 17 00:00:00 2001
+From 31f57df948a2fecc483cef4359d77e7c7e5e493d Mon Sep 17 00:00:00 2001
 From: Daniel Naylor <git@drnaylor.co.uk>
 Date: Mon, 17 Jul 2017 20:24:17 +0100
 Subject: [PATCH] Fix some forge plugin message packets not being forwarded
@@ -55,5 +55,5 @@ index 77d18e6d..d254b84e 100644
              synchronized ( packetQueue )
              {
 -- 
-2.40.1.windows.1
+2.42.0
 

@@ -1,4 +1,4 @@
-From 40a29046d0f396aba2c6ca7dfce0c9042990dd75 Mon Sep 17 00:00:00 2001
+From 0a62f3f1c21e3d233984a5c791a8f01edc3c4ecc Mon Sep 17 00:00:00 2001
 From: Colin Godsey <crgodsey@gmail.com>
 Date: Tue, 16 Apr 2019 07:25:52 -0600
 Subject: [PATCH] OSX native zlib and crypto
@@ -1215,5 +1215,5 @@ literal 0
 HcmV?d00001
 
 -- 
-2.40.1.windows.1
+2.42.0
 

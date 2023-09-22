@@ -1,4 +1,4 @@
-From 94fd8a335bfd82366ab786ed6ff288bcae1eb9f5 Mon Sep 17 00:00:00 2001
+From 26861289a9683ec96f6b49005533cd96d77345ed Mon Sep 17 00:00:00 2001
 From: "Five (Xer)" <admin@fivepb.me>
 Date: Sat, 30 Jan 2021 18:04:14 +0100
 Subject: [PATCH] Additional DoS mitigations
@@ -8,10 +8,10 @@ Courtesy of Tux and the Velocity Contributors. See:
 https://github.com/VelocityPowered/Velocity/commit/5ceac16a821ea35572ff11412ace8929fd06e278
 
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/DefinedPacket.java b/protocol/src/main/java/net/md_5/bungee/protocol/DefinedPacket.java
-index d3559188..59f2cb73 100644
+index 5ecb5c93..70ec6c53 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/DefinedPacket.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/DefinedPacket.java
-@@ -57,6 +57,7 @@ public abstract class DefinedPacket
+@@ -59,6 +59,7 @@ public abstract class DefinedPacket
          int len = readVarInt( buf );
          if ( len > maxLen * 3 )
          {
@@ -19,7 +19,7 @@ index d3559188..59f2cb73 100644
              throw new OverflowPacketException( "Cannot receive string longer than " + maxLen * 3 + " (got " + len + " bytes)" );
          }
  
-@@ -65,6 +66,7 @@ public abstract class DefinedPacket
+@@ -67,6 +68,7 @@ public abstract class DefinedPacket
  
          if ( s.length() > maxLen )
          {
@@ -27,7 +27,7 @@ index d3559188..59f2cb73 100644
              throw new OverflowPacketException( "Cannot receive string longer than " + maxLen + " (got " + s.length() + " characters)" );
          }
  
-@@ -396,4 +398,21 @@ public abstract class DefinedPacket
+@@ -424,4 +426,21 @@ public abstract class DefinedPacket
  
      @Override
      public abstract String toString();
@@ -50,7 +50,7 @@ index d3559188..59f2cb73 100644
 +    // Waterfall end
  }
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
-index f5e414c1..ac83e325 100644
+index aaf1269e..b89a2e16 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/MinecraftDecoder.java
 @@ -3,7 +3,7 @@ package net.md_5.bungee.protocol;
@@ -62,7 +62,7 @@ index f5e414c1..ac83e325 100644
  import io.netty.handler.codec.MessageToMessageDecoder;
  import java.util.List;
  import lombok.AllArgsConstructor;
-@@ -56,10 +56,16 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+@@ -58,10 +58,16 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
              if ( packet != null )
              {
                  packetTypeInfo = packet.getClass();
@@ -79,7 +79,7 @@ index f5e414c1..ac83e325 100644
                      throw new BadPacketException( "Packet " + protocol + ":" + prot.getDirection() + "/" + packetId + " (" + packet.getClass().getSimpleName() + ") larger than expected, extra bytes: " + in.readableBytes() );
                  }
              } else
-@@ -70,6 +76,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+@@ -72,6 +78,11 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
              out.add( new PacketWrapper( packet, slice ) );
              slice = null;
          } catch (BadPacketException | IndexOutOfBoundsException e) {
@@ -91,7 +91,7 @@ index f5e414c1..ac83e325 100644
              final String packetTypeStr;
              if (packetTypeInfo instanceof Integer) {
                  packetTypeStr = "id " + Integer.toHexString((Integer) packetTypeInfo);
-@@ -87,4 +98,52 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
+@@ -89,4 +100,52 @@ public class MinecraftDecoder extends MessageToMessageDecoder<ByteBuf>
              }
          }
      }
@@ -167,10 +167,10 @@ index 63e9d18d..545eec72 100644
 +    // Waterfall end
  }
 diff --git a/protocol/src/main/java/net/md_5/bungee/protocol/packet/LoginRequest.java b/protocol/src/main/java/net/md_5/bungee/protocol/packet/LoginRequest.java
-index 5186a6a8..d0e37793 100644
+index e62a3a03..9789215c 100644
 --- a/protocol/src/main/java/net/md_5/bungee/protocol/packet/LoginRequest.java
 +++ b/protocol/src/main/java/net/md_5/bungee/protocol/packet/LoginRequest.java
-@@ -65,4 +65,13 @@ public class LoginRequest extends DefinedPacket
+@@ -71,4 +71,13 @@ public class LoginRequest extends DefinedPacket
      {
          handler.handle( this );
      }
@@ -235,5 +235,5 @@ index 738f0c92..ec33d337 100644
 +    // Waterfall end
  }
 -- 
-2.40.1.windows.1
+2.42.0
 

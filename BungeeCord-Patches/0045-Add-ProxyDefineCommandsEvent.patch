@@ -1,4 +1,4 @@
-From b8ab200096dff40f7d50f5e37a545a5d79ef62bd Mon Sep 17 00:00:00 2001
+From 48553841b229f3e21ce0363be925f17657d4b8ef Mon Sep 17 00:00:00 2001
 From: Shane Freeder <theboyetronic@gmail.com>
 Date: Thu, 14 Mar 2019 07:44:06 +0000
 Subject: [PATCH] Add ProxyDefineCommandsEvent
@@ -54,27 +54,16 @@ index 00000000..1fd4fc90
 +
 +}
 diff --git a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-index 07e82e3c..c574eef8 100644
+index a2995c60..e05e746c 100644
 --- a/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
 +++ b/proxy/src/main/java/net/md_5/bungee/connection/DownstreamBridge.java
-@@ -19,8 +19,10 @@ import io.netty.channel.unix.DomainSocketAddress;
- import java.io.DataInput;
- import java.net.InetSocketAddress;
- import java.util.ArrayList;
-+import java.util.HashMap; // Waterfall
- import java.util.List;
- import java.util.Map;
-+import java.util.Objects; // Waterfall
- import lombok.RequiredArgsConstructor;
- import net.md_5.bungee.ServerConnection;
- import net.md_5.bungee.ServerConnection.KeepAliveData;
-@@ -755,9 +757,25 @@ public class DownstreamBridge extends PacketHandler
+@@ -776,9 +776,25 @@ public class DownstreamBridge extends PacketHandler
      {
          boolean modified = false;
  
 -        for ( Map.Entry<String, Command> command : bungee.getPluginManager().getCommands() )
 +        // Waterfall start
-+        Map<String, Command> commandMap = new HashMap<>();
++        Map<String, Command> commandMap = new java.util.HashMap<>();
 +        for ( Map.Entry<String, Command> commandEntry : bungee.getPluginManager().getCommands() ) {
 +            if ( !bungee.getDisabledCommands().contains( commandEntry.getKey() )
 +                    && commands.getRoot().getChild( commandEntry.getKey() ) == null
@@ -97,5 +86,5 @@ index 07e82e3c..c574eef8 100644
                  CommandNode dummy = LiteralArgumentBuilder.literal( command.getKey() ).executes( DUMMY_COMMAND )
                          .then( RequiredArgumentBuilder.argument( "args", StringArgumentType.greedyString() )
 -- 
-2.40.1.windows.1
+2.42.0
 
